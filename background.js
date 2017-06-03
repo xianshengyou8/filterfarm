@@ -15,6 +15,8 @@ firebase.initializeApp(config);
 var database = firebase.database();
 
 //test
+//test222
+
 
 /*
 // 取出黑名單domain

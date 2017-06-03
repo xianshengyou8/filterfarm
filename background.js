@@ -14,6 +14,8 @@ firebase.initializeApp(config);
 // Get a reference to the database service
 var database = firebase.database();
 
+
+
 /*
 // 取出黑名單domain
 function getSites() {

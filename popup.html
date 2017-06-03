@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+  body {
+    font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+    font-size: 100%;
+    width: 550px;
+    height: 800px;
+    background-color: #ccffff;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  #status {
+    /* avoid an excessively wide status text */
+    white-space: pre;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 400px;
+  }
+  
+  #user_block {
+    display: none;
+  }
+  
+  #opinion_block {
+    display: none;
+  }
+  
+  .button {
+    background-color: #99ccff;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 10px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    /* Safari */
+    transition-duration: 0.4s;
+    border-radius: 5px;
+  }
+  
+  #button01 {
+    background-color: #99ccff;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s;
+    /* Safari */
+    transition-duration: 0.4s;
+    border-radius: 5px;
+    vertical-align: bottom;
+  }
+  
+  .button2 {
+    margin-left: 20px;
+  }
+
+  .button4 {
+    margin-left: 20px;
+  }
+  
+  .button1:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+  
+  .button2:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+
+  .button3:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+
+  .button4:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+  
+  .fbImg:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+  
+  .googleImg:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+  
+  #button01:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+
+  .likeButton:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
+  }
+  </style>
+  <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+     -->
+  <script type="text/javascript" src="https://www.gstatic.com/firebasejs/3.6.4/firebase.js"></script>
+  <script type="text/javascript" src="jquery-2.0.0.min.js"></script>
+  <script type="text/javascript" src="cfblocker/Filter.js"></script>
+  <script type="text/javascript" src="cfblocker/ListFormatter.js"></script>
+  <script type="text/javascript" src="cfblocker/LocalStorageStore.js"></script>
+  <script type="text/javascript" src="background.js"></script>
+  <script type="text/javascript" src="popup.js"></script>
+</head>
+<body>
+  <div id="status"></div>
+  <div style="padding:10px;width:530px;">
+    <div style="width:80px;float:left;">
+      <img src="image/waring.png" style="width:80px;height:80px;" />
+    </div>
+    <div style="width:410px;float:left;margin-left:10px;">
+      <span style="font-size:18px;font-weight: bold;" id="title_block"></span>
+      <br>
+      <span style="font-size:16px;" id="warningText"></span><br>
+      <span style="font-size:16px;" id="p2"></span>
+    </div>
+  </div>
+  <div style="padding:10px;width:530px;text-align:center;">
+    <button type="button" class="button button1" id="back"></button>
+    <button type="button" class="button button2" id="continue"></button>
+  </div>
+  <div id="remind" style="padding:1px;width:530px;text-align:center;font-size:14px;">
+  </div>
+  <div style="padding:10px;width:530px;text-align:center;" id="oauth_block">
+    <button class="fbImg" id="fbLogin" style="border-width:0px;background-image:url(image/facebook_40x40.png);width:40px;height:40px;border-radius:5px;vertical-align:middle;"></button>
+    <button class="googleImg" id="quickstart-button" style="margin-left:20px;border-width:0px;background-image:url(image/google_plus_40x40.png);width:40px;height:40px;border-radius:5px;vertical-align:middle;"></button>
+  </div>
+  <div style="padding:10px;width:530px;height:auto;margin-top:20px;border: 1px solid #99ccff;border-radius: 5px;">
+    <div id="user_block">
+      <span style="font-size:15px;font-weight: bold;" id="user_name"></span>
+      <br>
+      <button style="margin-left:30px;">
+        <img id="star1" src="image/star_w.png" style="width:15px;height:15px;" />
+      </button>
+      <button style="">
+        <img id="star2" src="image/star_w.png" style="width:15px;height:15px;" />
+      </button>
+      <button style="">
+        <img id="star3" src="image/star_w.png" style="width:15px;height:15px;" />
+      </button>
+      <button style="">
+        <img id="star4" src="image/star_w.png" style="width:15px;height:15px;" />
+      </button>
+      <button style="">
+        <img id="star5" src="image/star_w.png" style="width:15px;height:15px;" />
+      </button>
+    </div>
+    <div style="margin-top:10px;" id="opinion_block">
+      <textarea style="width:400px;height:40px;vertical-align:bottom;border-radius: 5px;" id="opinion_content"></textarea>
+      <input type="button" id="button01" value="送出" />
+    </div>
+    <div style="padding:10px;margin-top:10px;width:510px;height:auto;border: 1px solid #99ccff;border-radius: 5px;">
+      <span id="average" style="font-size:14px;font-weight: bold;"></span>
+      <span id="avergeStarBlock"></span>
+      <br>
+      <br>
+      <span id="evaluation" style="font-size:12px;font-weight: bold;"></span>
+      <br>
+      <div id="content_block" style="padding:10px;margin-top:10px;width:440px;height:auto;">
+      </div>
+    </div>
+  </div>
+  <div style="padding:10px;width:530px;text-align:center;">
+    <button type="button" class="button button3" id="prePage"></button>
+    <button type="button" class="button button4" id="nextPage"></button>
+  </div>
+  <!-- google ad block
+  <div style="padding:10px;width:530px;text-align:center;margin-top:10px;">
+  </div>
+  -->
+</body>
+
+</html>

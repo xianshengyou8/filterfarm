@@ -1,0 +1,62 @@
+{
+  "appName": {
+    "message": "Content Farm Filter and Critic"
+  },
+
+  "appDesc": {
+    "message": "This extension is not only block Content Farm but also 'Critic' the articles."
+  },
+  "title": {
+    "message": "Beware! Content Farm!",
+    "description": "Title for stop page"
+  },
+  "header": {
+    "message": "You'll be able to open the content farm, and you can watch other users' reviews and suggestions before deciding whether to continue?",
+    "description": "Header of warning in stop page"
+  },
+  "p2": {
+    "message": "Refuse fake news and exaggerated articles, from now on ~",
+    "description": "Header of warning in stop page"
+  },
+  "remind": {
+    "message": "If you can, please help us leave comments on the article to against these fake online cultures",
+    "description": "Header of warning in stop page"
+  },
+  "body": {
+    "message": "Continue? Back if you are annoyed with them.",
+    "description": "Body of warning message"
+  },
+  "details": {
+    "message": "Details",
+    "description": "Click to open options from stop page"
+  },
+  "backBtn": {
+    "message": "Back",
+    "description": "Back button text"
+  },
+  "contBtn": {
+    "message": "Continue",
+    "description": "Continue button text"
+  },
+  "warningText": {
+    "message": "No more than 255 words!"
+  },
+  "average": {
+    "message": "Overall evaluation"
+  },
+  "evaluation": {
+    "message": "evaluation list"
+  },
+  "likeAlert": {
+    "message": "You have liked this comment!"
+  },
+  "likeError": {
+    "message": "You are not signed in!"
+  },
+  "prePageBtn": {
+    "message": "Previous page"
+  },
+  "nextPageBtn": {
+    "message": "Next page"
+  }
+}

@@ -1,6 +1,8 @@
 //var sites = [];
 //var blackTitleList = [];
 
+//test test test11111111
+
 // 初始化 Firebase 參數
 var config = {
   apiKey: "AIzaSyBWx8ieQHdXKXVMT9BSPhgl7rWWexEDxPo",
@@ -13,11 +15,6 @@ firebase.initializeApp(config);
 
 // Get a reference to the database service
 var database = firebase.database();
-
-//test
-//test222
-//test333333
-//test4444
 
 /*
 // 取出黑名單domain

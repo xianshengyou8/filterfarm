@@ -1,5 +1,6 @@
 
 //test 111
+//test 2222
 // 判斷FB登入狀態及取得登入資訊
 if (localStorage.accessToken) {
   var d = new Date();

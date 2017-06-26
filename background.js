@@ -630,6 +630,7 @@ $(document).ready(function () {
 	 LocalStorageStore.db.getBlackTitles();
 	 *
 	 * */
+	LocalStorageStore.db.reloadSitesAndBlackTitles(false);
 	setInterval(function(){
 		LocalStorageStore.db.reloadSitesAndBlackTitles(false);
 	},LocalStorageStore.db.timeoutSeed+1000);

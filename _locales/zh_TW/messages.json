@@ -1,20 +1,20 @@
 {
   "appName": {
-    "message": "內容農場評價系統"
+    "message": "詐騙網站及內容農場評價系統"
   },
   "appDesc": {
-    "message": "本插件可封鎖並評價內容農場的文章，任何使用者可留下文章的評價以幫助其他人決定是否讀取該文"
+    "message": "本插件可封鎖詐騙網站及內容農場的文章，使用者可留下文章的評價以幫助其他人決定是否讀取該文"
   },
   "title": {
-    "message": "內容農場注意",
+    "message": "請注意！詐騙網站或內容農場",
     "description": "Title for stop page"
   },
   "header": {
-    "message": "您將打開連結的是內容農場，你可觀看其他使用者的評價與建議後，再決定是否繼續？",
+    "message": "您將打開連結的是詐騙網站或內容農場，你可觀看其他使用者的評價與建議後，再決定是否繼續？",
     "description": "Header of warning in stop page"
   },
   "p2": {
-    "message": "拒絕假新聞及誇大的文章，從現在開始吧～",
+    "message": "拒絕詐騙、假新聞及誇大的文章，從現在開始吧～",
     "description": "Header of warning in stop page"
   },
   "remind": {

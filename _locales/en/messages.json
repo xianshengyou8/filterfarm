@@ -1,17 +1,17 @@
 {
   "appName": {
-    "message": "Content Farm Filter and Critic"
+    "message": "Scam Web and Content Farm Filter and Critic"
   },
 
   "appDesc": {
-    "message": "This extension is not only block Content Farm but also 'Critic' the articles."
+    "message": "This extension is to block Scam Web and Content Farm and  'Critic' the articles."
   },
   "title": {
-    "message": "Beware! Content Farm!",
+    "message": "Beware! Scam Web and Content Farm!",
     "description": "Title for stop page"
   },
   "header": {
-    "message": "You'll be able to open the content farm, and you can watch other users' reviews and suggestions before deciding whether to continue?",
+    "message": "You'll be able to open the Scam Web and content farm. You can watch other users' reviews and suggestions before deciding whether to continue?",
     "description": "Header of warning in stop page"
   },
   "p2": {

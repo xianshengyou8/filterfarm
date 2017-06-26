@@ -2,9 +2,9 @@
   "manifest_version": 2,
   "default_locale": "zh_TW",
   "name": "__MSG_appName__",
-  "short_name": "Content Farm Critic",
+  "short_name": "Scam Web and Content Farm Critic",
   "description": "__MSG_appDesc__",
-  "version": "2.5",
+  "version": "2.6",
 
   "browser_action": {
     "default_icon": "image/icon.png"

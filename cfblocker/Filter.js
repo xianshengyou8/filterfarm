@@ -71,7 +71,7 @@ var Filter = {
     var replaced;
 
     // Take out http[s]:// prefix
-    replaced = pattern.replace(/^http[s]*:*\/*/, "");
+    replaced = (pattern+"").replace(/^http[s]*:*\/*/, "");
 
     replaced = replaced.replace(/\./g, "\\.").replace(/\*/g, ".*");
     var rx = new RegExp("^[a-z0-9-\.]*\\.+" + replaced + "$|^" + replaced + "$");

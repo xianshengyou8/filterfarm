@@ -35,7 +35,7 @@ var LocalStorageStore = {
 	},
 
 	db: {
-		timeoutSeed: 1000 * 60 * 60 * 24 * 3,//three day
+		timeoutSeed: 1000 * 60 * 60 ,//one hour
 		table: {
 			sites: "sites",
 			blackTitles: "blackTitles"
@@ -112,12 +112,15 @@ var LocalStorageStore = {
 				this._reloadSites();
 				this._reloadBlackTitles();
 				this._setLastUpdateLocalDbTime(this._getNowTime());
+				console.log("update sites...ok");
 			}
 			if (enforce || this.isEmptyLocalSites()) {
 				load.call(this);
 			} else {
 				if(this.isTimeOut()){
 					load.call(this);
+				}else{
+					console.log("not timeout");
 				}
 			}
 		},

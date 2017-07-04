@@ -47,7 +47,7 @@ var Filter = {
 	match_v2: function(hostname) {
 		var ret = false;
 		hostname = hostname.toLowerCase();
-		var siteList = LocalStorageStore.db.getSites();
+		var siteList = main.localDB.getSites();
 		for (var i in siteList) {
 			var site = siteList[i];
 			if(site!=null){

@@ -2,6 +2,7 @@
 //var blackTitleList = [];
 
 // 初始化 Firebase 參數
+/*
 var config = {
 	apiKey: "AIzaSyBWx8ieQHdXKXVMT9BSPhgl7rWWexEDxPo",
 	authDomain: "filterfarm-a7a93.firebaseapp.com",
@@ -13,7 +14,7 @@ firebase.initializeApp(config);
 
 // Get a reference to the database service
 var database = firebase.database();
-
+*/
 /*
  // 取出黑名單domain
  function getSites() {
@@ -165,6 +166,7 @@ function handle(tab) {
 //chrome.i18n.getMessage("")
 //\u即時監測請求網址  =======用途不明
 chrome.webRequest.onBeforeRequest.addListener(function (info) {
+	//main.log.show("chrome.webRequest.onBeforeRequest.addListener", arguments);
 	var cancel = false;
 	if (false) {
 		if (info.title !== undefined) {
@@ -184,11 +186,13 @@ chrome.webRequest.onBeforeRequest.addListener(function (info) {
 
 // 即時監測新開browser分頁
 chrome.tabs.onCreated.addListener(function (tab) {
+	main.log.show("chrome.tabs.onCreated.addListener", arguments);
 	handle(tab);
 });
 
 // 即時分頁即時更新監聽
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+	main.log.show("chrome.tabs.onUpdated.addListener" , arguments);
 	handle(tab);
 });
 
@@ -296,7 +300,7 @@ function writeUserData(myTitle, user_name, opinion_content, starNum, timestampNo
 	}
 
 	var clean_myTitle = htmlSpecialChars(myTitle);
-	firebase.database().ref('users/' + clean_myTitle + '/' + timestampNow).set({
+	main.getFireDatabase().ref('users/' + clean_myTitle + '/' + timestampNow).set({
 		user_name: user_name,
 		opinion_content: opinion_content,
 		starNum: starNum,
@@ -316,7 +320,7 @@ function writeUserData(myTitle, user_name, opinion_content, starNum, timestampNo
 
 // 檢查是否點擊過like
 function checkLike(userName, timeId, callback) {
-	var ref = firebase.database().ref("comment/" + timeId);
+	var ref = main.getFireDatabase().ref("comment/" + timeId);
 	ref.once('value', function (snapshot) {
 		if (snapshot.val() !== null) {
 			var checkNum = snapshot.val().indexOf(userName);
@@ -332,7 +336,7 @@ function checkLike(userName, timeId, callback) {
 
 // like紀錄寫入firebase
 function writeLikeRecord(userName, timeId, callback) {
-	var ref = firebase.database().ref("comment/" + timeId);
+	var ref = main.getFireDatabase().ref("comment/" + timeId);
 	ref.once('value', function (snapshot) {
 		if (snapshot.val() !== null) {
 			var userList = snapshot.val();
@@ -342,7 +346,7 @@ function writeLikeRecord(userName, timeId, callback) {
 			userList.push(userName);
 		}
 		//console.log(userList);
-		firebase.database().ref('comment/' + timeId).set(userList);
+		main.getFireDatabase().ref('comment/' + timeId).set(userList);
 		callback(null, true);
 	}, function (error) {
 		// error wil be an Object
@@ -357,7 +361,7 @@ function getCommentList(startNum, endNum, myTitle) {
 	var averageTpl = '';
 	var totalNum = 0;
 	var totalStar = 0;
-	var ref = firebase.database().ref("users/" + htmlSpecialChars(myTitle));
+	var ref = main.getFireDatabase().ref("users/" + htmlSpecialChars(myTitle));
 	var timeArray = [];
 	var likeArray = [];
 	var commentList = [];
@@ -452,7 +456,7 @@ function getCommentList(startNum, endNum, myTitle) {
 					// 確認是否評論過
 					checkLike(user_name, value, function (err, result) {
 						if (result < 0) {
-							var adaNameRef = firebase.database().ref('users/' + clean_myTitle + '/' + value);
+							var adaNameRef = main.getFireDatabase().ref('users/' + clean_myTitle + '/' + value);
 							adaNameRef.update({like: likeArray[index] + 1});
 							writeLikeRecord(user_name, value, function (err, res) {
 								if (res === true) {
@@ -482,7 +486,7 @@ function setCommentList(startNum, endNum, myTitle, nowPage) {
 	var averageTpl = '';
 	var totalNum = 0;
 	var totalStar = 0;
-	var ref = firebase.database().ref("users/" + htmlSpecialChars(myTitle));
+	var ref = main.getFireDatabase().ref("users/" + htmlSpecialChars(myTitle));
 	var timeArray = [];
 	var likeArray = [];
 	var commentList = [];
@@ -577,7 +581,7 @@ function setCommentList(startNum, endNum, myTitle, nowPage) {
 					// 確認是否評論過
 					checkLike(user_name, value, function (err, result) {
 						if (result < 0) {
-							var adaNameRef = firebase.database().ref('users/' + clean_myTitle + '/' + value);
+							var adaNameRef = main.getFireDatabase().ref('users/' + clean_myTitle + '/' + value);
 							adaNameRef.update({like: likeArray[index] + 1});
 							writeLikeRecord(user_name, value, function (err, res) {
 								if (res === true) {
@@ -624,16 +628,11 @@ $(document).ready(function () {
 	//getBlackTitle();
 
 	//更新黑名單存在本機
-	/*
-	 取得方式:
-	 LocalStorageStore.db.getSites();
-	 LocalStorageStore.db.getBlackTitles();
-	 *
-	 * */
-	LocalStorageStore.db.reloadSitesAndBlackTitles(false);
+	main.reloadAll(false);
 	setInterval(function(){
-		LocalStorageStore.db.reloadSitesAndBlackTitles(false);
-	},LocalStorageStore.db.timeoutSeed+1000);
+		//main.connectFireDatabase(true);
+		main.reloadAll(false);
+	},main.localDB.timeoutSeed+1000);
 
 
 	// 本地化語系讀取

@@ -2,8 +2,8 @@
  * Created by andrew on 2017/7/3.
  */
 
-var Main = function (config) {
-	var main = this;
+var Filterfarm = function (config) {
+	var _self = this;
 	this.firebaseWrapper = {
 		_database: null,
 		init: function () {
@@ -29,13 +29,22 @@ var Main = function (config) {
 				this.getDatabase().goOffline();
 			}
 		},registerConnectStateEvent:function(){
+			var listRef = this.getDatabase().ref("/presence");
+			var userRef = listRef.push();// Create a new post reference with an auto-generated id
 			var connectedRef = this.getDatabase().ref(".info/connected");
 			connectedRef.on("value", function(snap) {
 				if (snap.val() === true) {
-					main.log.show("connected",arguments);
+					_self.log.show("connected",arguments);
+					// Remove ourselves when we disconnect.
+					userRef.onDisconnect().remove();
+					userRef.set(true);
 				} else {
-					main.log.show("not connected",arguments);
+					_self.log.show("not connected",arguments);
 				}
+			});
+			// Number of online users is the number of objects in the presence list.
+			listRef.on("value", function(snap) {
+				_self.log.show("Online Users:",snap.numChildren(),arguments);
 			});
 		}
 	};
@@ -90,14 +99,15 @@ var Main = function (config) {
 			return JSON.parse(this._getStorageItem(tableName));
 		},
 		_reloadTable: function (tableName) {
-			var localDB = this;
-			var ref2 = main.getFireDatabase().ref(tableName);
-			localDB._initialEmpty(tableName);
-			ref2.once('value', function (snapshot) {
+			let localDB = this;
+			let ref = _self.getFireDatabase().ref(tableName);
+			ref.once('value').then(function(snapshot){
+				localDB._initialEmpty(tableName);
+				_self.log.show(`${tableName} clear and rest` , arguments);
 				snapshot.forEach(function (childSnapshot) {
 					localDB._addNode(tableName, {key: childSnapshot.key, val: childSnapshot.val()});
 				});
-				//main.connectFireDatabase(false);
+				//_self.connectFireDatabase(false);
 			});
 		},
 		_reloadSites: function () {
@@ -165,7 +175,7 @@ var Main = function (config) {
 	$.extend(this, config);
 	this.firebaseWrapper.init();
 };
-window.main = new Main({
+window.filterfarm = new Filterfarm({
 	reloadAll:function(enforce){
 		this.localDB.reloadSitesAndBlackTitles(enforce);
 	},
@@ -177,6 +187,17 @@ window.main = new Main({
 	},
 	connectFireDatabase:function(con){
 		this.getFirebaseWrapper().connect(con);
+	},
+	getPathValue:function(path,callback){
+		this.getFireDatabase().ref(path).once('value').then(callback);
+	},isConnectAsync:function(callback){
+		this.getPathValue('.info/connected',callback);
+		//this.getPathValue('.info/serverTimeOffset',callback);
+	},detectConnect:function () {
+		this.isConnectAsync(function(snapshot){
+			filterfarm.log.show("connect",snapshot.val(),arguments);
+		});
 	}
+
 });
-main.log.setVisible(false);
+filterfarm.log.setVisible(!true);

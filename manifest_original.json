@@ -15,16 +15,16 @@
   "permissions": [
     "identity",
     "tabs",
+    "https://ajax.googleapis.com/",
+    "http://*.facebook.com/*",
     "webRequest",
     "webRequestBlocking",
-    "cookies",
-    "<all_urls>",
     "http://*/",
     "https://*/",
-    "https://www.gstatic.com/*",
-    "https://ajax.googleapis.com/"
+    "cookies",
+    "https://www.gstatic.com/*"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://unpkg.com/*  https://*.facebook.com https://*.facebook.net https://apis.google.com https://www.gstatic.com https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://apis.google.com https://www.gstatic.com https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
   "oauth2": {
     "client_id": "817781349645-k283oikrmcn38vkf7b8ltsrqdjai6p04.apps.googleusercontent.com",
     "scopes": [

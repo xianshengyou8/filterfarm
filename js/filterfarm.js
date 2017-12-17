@@ -3,10 +3,11 @@
  */
 
 var Filterfarm = function (config) {
-	var _self = this;
+	var _selfFilterfarm = this;
 	this.firebaseWrapper = {
 		_database: null,
 		init: function () {
+			this._run();
 			// 初始化 Firebase 參數
 			var config = {
 				apiKey: "AIzaSyBWx8ieQHdXKXVMT9BSPhgl7rWWexEDxPo",
@@ -18,38 +19,150 @@ var Filterfarm = function (config) {
 			window.firebase.initializeApp(config);
 			this.registerConnectStateEvent();
 		}, getDatabase: function (enforceReload) {
-			if (this._database==null || enforceReload) {
+			if (this._database == null || enforceReload) {
 				this._database = window.firebase.database();
 			}
 			return this._database;
-		},connect:function(enable){
-			if(enable){
-				this.getDatabase().goOnline();
-			}else{
-				this.getDatabase().goOffline();
-			}
-		},registerConnectStateEvent:function(){
-			var listRef = this.getDatabase().ref("/presence");
-			var userRef = listRef.push();// Create a new post reference with an auto-generated id
+		}, disConnect: function () {
+			this.getDatabase().goOffline();
+		}, connect: function () {
+			this.getDatabase().goOnline();
+		}, registerConnectStateEvent: function () {
+			var listRef = this.getDatabase().ref("/connectPool");
+			// Create a new post reference with an auto-generated id
+			var userRef = listRef.push(); //the auto-generated id is {userRef.key}
 			var connectedRef = this.getDatabase().ref(".info/connected");
-			connectedRef.on("value", function(snap) {
+			connectedRef.on("value", function (snap) {
 				if (snap.val() === true) {
-					_self.log.show("connected",arguments);
+					chokali.log.show("connected", arguments);
 					// Remove ourselves when we disconnect.
 					userRef.onDisconnect().remove();
-					userRef.set(true);
+					//userRef.set(true);
+					let time = chokali.dateTime.getDateTimeText(new Date(), "yyyy/mm/dd hh:min:ss");
+					chokali.findIP(
+						function (ip) {
+							userRef.set({
+								ip: ip,
+								datetime: time
+							});
+						}, function (e) {
+							console.error(e);
+							userRef.set({
+								ip: "undefined",
+								datetime: time
+							});
+						}
+					);
+					/*Usage example*/
+					//findIP.then(ip => document.write('your ip: ', ip)).catch(e => console.error(e))
 				} else {
-					_self.log.show("not connected",arguments);
+					chokali.log.show("not connected", arguments);
 				}
 			});
 			// Number of online users is the number of objects in the presence list.
-			listRef.on("value", function(snap) {
-				_self.log.show("Online Users:",snap.numChildren(),arguments);
+			listRef.on("value", function (snap) {
+				chokali.log.show("Online Users", snap.numChildren());
 			});
+			if (true) {// prepare destrooy
+				this.getDatabase().ref("/presence").on("value", function (snap) {
+					chokali.log.show("Presence", snap.numChildren());
+				});
+			}
+
+		},
+		excuseAsyncForOnceValue: function (method, ref, callback) {
+			this._excuseOnceValue(ref, function (...arg) {
+				callback(...arg); //obj is callback
+			});
+		},
+		excuseAsyncForSet: function (method, ref, dataObj, callback) {//todo 2222
+			this._excuseSet(ref, function (...arg) {
+				callback(...arg); //obj is callback
+			});
+		},
+		excuseAsyncForDelete: function (method, ref, callback) {
+
+		},
+		excuseLikeSync: function () {
+			var firebaseWrapper = this;
+			this._cacheQueue.push(arguments);
+			return;
+		},
+		_excuseOnceValue: function (ref, callback) {
+			ref.once('value').then(callback);
+		},
+		_excuseSet: function (ref, dataObj, callback) {
+			ref.set(dataObj).then(callback);//還好有then callback,官網似乎沒提到這個api
+			//ref.set(dataObj);
+		},
+		_excuseDelete: function (ref, dataObj, callback) {
+		},
+		_cacheQueue: [],
+		_lock: false,
+		_lockTimeoutSeed: 6000, //lock timeout is relock
+		_runThreadSeed: 500,
+		_run: function () {
+			var firebaseWrapper = this;
+			setInterval(function () {
+				//chokali.log.show(`prepare run thread `, firebaseWrapper._cacheQueue);
+				var threads = firebaseWrapper._cacheQueue;
+				if (threads.length > 0) {
+					if (!firebaseWrapper._lock) {
+						chokali.log.show(`before run thread `, firebaseWrapper._cacheQueue);
+						var thread = threads[0];
+						var method = thread[0];
+						switch (method) {
+							case "onceValue":
+								var ref = thread[1];
+								var callback = thread[2];
+								firebaseWrapper.connect();//=======connect=======
+								firebaseWrapper._lock = true;
+								firebaseWrapper._lockTimeout = setTimeout(function () {
+									chokali.log.show(`lock time out `, firebaseWrapper._cacheQueue);
+									firebaseWrapper._lock = false;
+								}, firebaseWrapper._lockTimeoutSeed);
+								firebaseWrapper._excuseOnceValue(ref, function (...arg) {
+									callback(...arg);
+									firebaseWrapper._lock = false;
+									clearTimeout(firebaseWrapper._lockTimeout);
+									firebaseWrapper.disConnect();//=======disconnect=======
+								});
+								break;
+							case "set":
+								var ref = thread[1];
+								var dataObj = thread[2];
+								var callback = thread[3];
+								firebaseWrapper.connect();//=======connect=======
+								firebaseWrapper._lock = true;
+								firebaseWrapper._lockTimeout = setTimeout(function () {
+									chokali.log.show(`lock time out `, firebaseWrapper._cacheQueue);
+									firebaseWrapper._lock = false;
+								}, firebaseWrapper._lockTimeoutSeed);
+								firebaseWrapper._excuseSet(ref, dataObj, function (...arg) {
+									chokali.log.show(`_excuseSet`, firebaseWrapper._cacheQueue);
+									callback(...arg);
+									firebaseWrapper._lock = false;
+									clearTimeout(firebaseWrapper._lockTimeout);
+									firebaseWrapper.disConnect();//=======disconnect=======
+								});
+								break;
+							case "delete":
+								break;
+						}
+						firebaseWrapper._cacheQueue = threads.slice(1, threads.length);
+						chokali.log.show(`after run thread `, firebaseWrapper._cacheQueue);
+					} else {
+						chokali.log.showRed(`thread is lock`, firebaseWrapper._cacheQueue);
+					}
+				} else {
+					//chokali.log.show(`thread is zero`, firebaseWrapper._cacheQueue);
+				}
+				//chokali.log.show(`===================== `, firebaseWrapper._cacheQueue);
+			}, firebaseWrapper._runThreadSeed);
 		}
 	};
 	this.localDB = {
-		timeoutSeed: 1000 * 60 * 60,//one hour
+		timeoutSeed: 1000 * 60 * 60 * 12,//one hour*12
 		table: {
 			blackTitles: "blackTitles",
 			comment: "comment",
@@ -100,14 +213,13 @@ var Filterfarm = function (config) {
 		},
 		_reloadTable: function (tableName) {
 			let localDB = this;
-			let ref = _self.getFireDatabase().ref(tableName);
-			ref.once('value').then(function(snapshot){
+			let ref = _selfFilterfarm.getFireDatabase().ref(tableName);
+			_selfFilterfarm.firebaseWrapper.excuseLikeSync("onceValue", ref, function (snapshot) {
 				localDB._initialEmpty(tableName);
-				_self.log.show(`${tableName} clear and rest` , arguments);
+				chokali.log.show(`${tableName} clear and rest`, arguments);
 				snapshot.forEach(function (childSnapshot) {
 					localDB._addNode(tableName, {key: childSnapshot.key, val: childSnapshot.val()});
 				});
-				//_self.connectFireDatabase(false);
 			});
 		},
 		_reloadSites: function () {
@@ -130,7 +242,7 @@ var Filterfarm = function (config) {
 				this._reloadSites();
 				this._reloadBlackTitles();
 				this._setLastUpdateLocalDbTime(this._getNowTime());
-				console.log("update sites...ok");
+				chokali.log.show("update sites...ok");
 			}
 			if (enforce || this.isEmptyLocalSites()) {
 				load.call(this);
@@ -138,7 +250,7 @@ var Filterfarm = function (config) {
 				if (this.isTimeOut()) {
 					load.call(this);
 				} else {
-					console.log("not timeout");
+					chokali.log.show("not timeout");
 				}
 			}
 		},
@@ -158,46 +270,18 @@ var Filterfarm = function (config) {
 			this._initialEmpty(this.table.blackTitles);
 		}
 	};
-	this.log = new function (name, p1, p2) {
-		this.isVisible = function () {
-			return this.visible;
-		};
-		this.setVisible = function (val) {
-			this.visible = val;
-		};
-		this.show = function (name, p1, p2) {
-			if (this.isVisible()) {
-				console.info('%c' + name + ':', 'background: #222; color: #bada55', p1, p2);
-			}
-		};
-		this.visible = false;
-	};
 	$.extend(this, config);
 	this.firebaseWrapper.init();
 };
 window.filterfarm = new Filterfarm({
-	reloadAll:function(enforce){
-		this.localDB.reloadSitesAndBlackTitles(enforce);
-	},
+	src1: 'http://114.35.251.18:7070/facebook/index.html?path=',
+	src2: 'http://willowbrookmontessori.com/system_images/filterfarm/demo?path=',
 	getFirebaseWrapper: function () {
 		return this.firebaseWrapper;
 	},
-	getFireDatabase: function(){
-		return this.getFirebaseWrapper().getDatabase();
-	},
-	connectFireDatabase:function(con){
-		this.getFirebaseWrapper().connect(con);
-	},
-	getPathValue:function(path,callback){
-		this.getFireDatabase().ref(path).once('value').then(callback);
-	},isConnectAsync:function(callback){
-		this.getPathValue('.info/connected',callback);
-		//this.getPathValue('.info/serverTimeOffset',callback);
-	},detectConnect:function () {
-		this.isConnectAsync(function(snapshot){
-			filterfarm.log.show("connect",snapshot.val(),arguments);
-		});
+	getFireDatabase: function (enforce) {
+		var db = this.getFirebaseWrapper().getDatabase(enforce);
+		return db;
 	}
-
 });
-filterfarm.log.setVisible(!true);
+chokali.log.setVisible(!true);

@@ -30716,9 +30716,13 @@
 			 * after transforming it.
 			 */
 			function run(transformFn, script) {
-				var scriptEl = document.createElement('script');
-				scriptEl.text = transformCode(transformFn, script);
-				headEl.appendChild(scriptEl);
+				if(false){
+					var scriptEl = document.createElement('script');
+					scriptEl.text = transformCode(transformFn, script);
+					headEl.appendChild(scriptEl);
+				}else{
+					eval(transformCode(transformFn, script));//edit by andrew because https://stackoverflow.com/questions/37218678/is-content-security-policy-unsafe-inline-deprecated
+				}
 			}
 
 			/**
